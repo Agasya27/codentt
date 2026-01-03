@@ -1,0 +1,171 @@
+import { useState } from "react";
+import { Menu, X, ArrowRight, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+
+interface NavbarProps {
+  onCtaClick: () => void;
+}
+
+const Navbar = ({ onCtaClick }: NavbarProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
+
+  const navLinks = [
+    { href: "#features", label: "Features", hasDropdown: true },
+    { href: "#testimonials", label: "Testimonials" },
+    { href: "#how-it-works", label: "How It Works" },
+    { href: "#faq", label: "FAQ" },
+  ];
+
+  const featurePages = [
+    { to: "/dsa", label: "DSA Practice", description: "Master data structures & algorithms" },
+    { to: "/dbms", label: "DBMS Concepts", description: "Learn database fundamentals" },
+    { to: "/hr", label: "HR Interview", description: "Ace behavioral questions" },
+    { to: "/resume", label: "Resume Builder", description: "Create standout resumes" },
+  ];
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4">
+      {/* Curved pill navbar container */}
+      <div className="bg-background/80 backdrop-blur-xl border border-border/50 rounded-full shadow-lg shadow-primary/5 px-3 py-2 flex items-center gap-2">
+        {/* Logo - Text only */}
+        <Link to="/" className="text-xl font-bold text-foreground px-4">
+          <span className="text-primary">Code</span>ntt
+        </Link>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-1">
+          {navLinks.map((link) => (
+            <div key={link.href} className="relative">
+              {link.hasDropdown ? (
+                <div
+                  className="relative"
+                  onMouseEnter={() => setIsFeaturesOpen(true)}
+                  onMouseLeave={() => setIsFeaturesOpen(false)}
+                >
+                  <button
+                    className="flex items-center gap-1 text-foreground/70 hover:text-foreground transition-colors duration-200 font-medium text-sm px-4 py-2 rounded-full hover:bg-muted/50"
+                  >
+                    {link.label}
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isFeaturesOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {/* Modern Semi-Blurred Dropdown */}
+                  {isFeaturesOpen && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 animate-fade-in">
+                      <div className="bg-background/90 backdrop-blur-2xl border border-border/50 rounded-2xl shadow-2xl shadow-primary/10 p-2 min-w-[280px]">
+                        {featurePages.map((page) => (
+                          <Link
+                            key={page.to}
+                            to={page.to}
+                            className="flex flex-col gap-0.5 px-4 py-3 rounded-xl hover:bg-primary/10 transition-all duration-200 group"
+                          >
+                            <span className="font-medium text-foreground group-hover:text-primary transition-colors">
+                              {page.label}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {page.description}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <a
+                  href={link.href}
+                  className="text-foreground/70 hover:text-foreground transition-colors duration-200 font-medium text-sm px-4 py-2 rounded-full hover:bg-muted/50"
+                >
+                  {link.label}
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop CTA */}
+        <div className="hidden md:flex items-center ml-2">
+          <Button
+            onClick={onCtaClick}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5 py-5 font-medium text-sm gap-2 group transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40"
+          >
+            Start Your Journey
+            <div className="w-6 h-6 rounded-full bg-primary-foreground/20 flex items-center justify-center group-hover:bg-primary-foreground/30 transition-colors">
+              <ArrowRight className="h-3.5 w-3.5" />
+            </div>
+          </Button>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <div className="flex md:hidden items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="fixed inset-x-4 top-20 md:hidden bg-background/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl p-4 animate-fade-in">
+          <div className="flex flex-col gap-2">
+            {/* Features with sub-items */}
+            <div className="space-y-1">
+              <button
+                onClick={() => setIsFeaturesOpen(!isFeaturesOpen)}
+                className="flex items-center justify-between w-full text-foreground/80 hover:text-foreground transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-muted/50 font-medium"
+              >
+                Features
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isFeaturesOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {isFeaturesOpen && (
+                <div className="pl-4 space-y-1 animate-fade-in">
+                  {featurePages.map((page) => (
+                    <Link
+                      key={page.to}
+                      to={page.to}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block py-2 px-3 text-foreground/70 hover:text-primary transition-colors rounded-lg hover:bg-primary/5"
+                    >
+                      {page.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {navLinks.slice(1).map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsMenuOpen(false)}
+                className="text-foreground/80 hover:text-foreground transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-muted/50 font-medium"
+              >
+                {link.label}
+              </a>
+            ))}
+            
+            <Button
+              onClick={() => {
+                setIsMenuOpen(false);
+                onCtaClick();
+              }}
+              className="w-full mt-2 rounded-full gap-2"
+            >
+              Start Your Journey
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+export default Navbar;

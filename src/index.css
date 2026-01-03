@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Codentt Design System - White + Orange with Blush Texture */
+
+@layer base {
+  :root {
+    --background: 30 20% 98%;
+    --foreground: 0 0% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 12%;
+
+    --primary: 24 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 15% 95%;
+    --secondary-foreground: 0 0% 12%;
+
+    --muted: 30 10% 92%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 24 100% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 15% 88%;
+    --input: 30 15% 88%;
+    --ring: 24 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --glow: 24 100% 50%;
+    --surface: 30 15% 96%;
+    --surface-elevated: 0 0% 100%;
+    --blush: 24 80% 95%;
+  }
+
+  .dark {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 24 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 64%;
+
+    --accent: 24 100% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 24 100% 50%;
+
+    /* Custom tokens */
+    --glow: 24 100% 55%;
+    --surface: 0 0% 8%;
+    --surface-elevated: 0 0% 12%;
+    --blush: 24 50% 8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--glow) / 0.4), 0 0 40px hsl(var(--glow) / 0.2);
+  }
+
+  .glow-primary-hover:hover {
+    box-shadow: 0 0 30px hsl(var(--glow) / 0.6), 0 0 60px hsl(var(--glow) / 0.3);
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary via-orange-400 to-primary bg-clip-text text-transparent;
+  }
+
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, hsl(var(--border) / 0.3) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.3) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .bg-gradient-radial {
+    background: radial-gradient(ellipse at center, hsl(var(--glow) / 0.08) 0%, transparent 70%);
+  }
+
+  .bg-blush-texture {
+    background: 
+      radial-gradient(ellipse at 20% 30%, hsl(var(--blush)) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, hsl(var(--blush)) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, hsl(var(--glow) / 0.03) 0%, transparent 60%);
+  }
+
+  .bg-blush-subtle {
+    background: 
+      radial-gradient(ellipse at 30% 20%, hsl(var(--blush)) 0%, transparent 40%),
+      radial-gradient(ellipse at 70% 80%, hsl(var(--blush)) 0%, transparent 40%);
+  }
+}
