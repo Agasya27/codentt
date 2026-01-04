@@ -1,24 +1,176 @@
+# Root .gitignore for Codentt Project
+
+# ============================================
+# Operating System Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# ============================================
+# IDE and Editor Files
+# ============================================
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+*.sublime-*
+
+# ============================================
+# Backend (Java/Spring Boot/Maven)
+# ============================================
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.factorypath
+backend/*.jar
+backend/*.war
+backend/*.ear
+backend/*.nar
+backend/*.log
+backend/.springBeans
+
+# Maven
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/.mvn/wrapper/maven-wrapper.properties
+
+# ============================================
+# Frontend (Node.js/React/TypeScript)
+# ============================================
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
+frontend/.vite/
+frontend/.cache/
+frontend/.parcel-cache/
+frontend/.turbo/
+
+# Dependencies
+frontend/package-lock.json
+frontend/yarn.lock
+frontend/pnpm-lock.yaml
+frontend/bun.lockb
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/.env*.local
+
+# Testing
+frontend/coverage/
+frontend/.nyc_output/
+frontend/.jest/
+
+# ============================================
+# Environment Variables and Secrets
+# ============================================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env*.local
+*.env
+secrets/
+*.pem
+*.key
+*.cert
+*.p12
+*.jks
+
+# ============================================
+# Database
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+*.h2.db
+*.mv.db
+*.trace.db
+database/
+*.dump
+
+# ============================================
 # Logs
-logs
+# ============================================
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 lerna-debug.log*
+pnpm-debug.log*
+*.log.*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ============================================
+# Temporary Files
+# ============================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# ============================================
+# Build Artifacts
+# ============================================
+*.class
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+
+# ============================================
+# Documentation Build
+# ============================================
+docs/_build/
+site/
+
+# ============================================
+# Misc
+# ============================================
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+.cache/
+.vercel/
+.netlify/
+.firebase/
+.serverless/
+
+# ============================================
+# Project Specific
+# ============================================
+# Keep these if needed, but typically ignore:
+# backend/target/ - Maven build output
+# frontend/node_modules/ - Node dependencies
+# frontend/dist/ - Build output
+
