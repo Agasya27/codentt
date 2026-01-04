@@ -13,6 +13,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
 
   const navLinks = [
     { href: "#features", label: "Features", hasDropdown: true },
+    { to: "/experts", label: "Experts", isLink: true },
     { href: "#testimonials", label: "Testimonials" },
     { href: "#how-it-works", label: "How It Works" },
     { href: "#faq", label: "FAQ" },
@@ -22,7 +23,6 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
     { to: "/dsa", label: "DSA Practice", description: "Master data structures & algorithms" },
     { to: "/dbms", label: "DBMS Concepts", description: "Learn database fundamentals" },
     { to: "/hr", label: "HR Interview", description: "Ace behavioral questions" },
-    { to: "/resume", label: "Resume Builder", description: "Create standout resumes" },
   ];
 
   return (
@@ -73,6 +73,13 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
                     </div>
                   )}
                 </div>
+              ) : link.isLink ? (
+                <Link
+                  to={link.to!}
+                  className="text-foreground/70 hover:text-foreground transition-colors duration-200 font-medium text-sm px-4 py-2 rounded-full hover:bg-muted/50"
+                >
+                  {link.label}
+                </Link>
               ) : (
                 <a
                   href={link.href}
@@ -141,14 +148,25 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
             </div>
 
             {navLinks.slice(1).map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setIsMenuOpen(false)}
-                className="text-foreground/80 hover:text-foreground transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-muted/50 font-medium"
-              >
-                {link.label}
-              </a>
+              link.isLink ? (
+                <Link
+                  key={link.to}
+                  to={link.to!}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-foreground/80 hover:text-foreground transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-muted/50 font-medium"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-foreground/80 hover:text-foreground transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-muted/50 font-medium"
+                >
+                  {link.label}
+                </a>
+              )
             ))}
             
             <Button

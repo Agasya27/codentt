@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Navbar from "@/components/landing/Navbar";
 import ComingSoonModal from "@/components/landing/ComingSoonModal";
+import DiscussionForum from "@/components/DiscussionForum";
 
 const companies = [
   "Google", "Amazon", "Microsoft", "Meta", "Apple", 
@@ -270,6 +271,13 @@ WHERE
                   }}
                 />
               </div>
+              
+              {/* Discussion Forum */}
+              <DiscussionForum 
+                questionId={selectedQuestion.id}
+                questionTitle={selectedQuestion.title}
+                company={displayCompanyName}
+              />
             </div>
           </div>
         </div>

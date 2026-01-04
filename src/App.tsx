@@ -9,7 +9,8 @@ import DSACompany from "./pages/DSACompany";
 import DBMSLanding from "./pages/DBMSLanding";
 import DBMSCompany from "./pages/DBMSCompany";
 import HRLanding from "./pages/HRLanding";
-import ResumeLanding from "./pages/ResumeLanding";
+
+import ExpertsLanding from "./pages/ExpertsLanding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,7 +28,7 @@ const App = () => (
           <Route path="/dbms" element={<DBMSLanding />} />
           <Route path="/dbms/:company" element={<DBMSCompany />} />
           <Route path="/hr" element={<HRLanding />} />
-          <Route path="/resume" element={<ResumeLanding />} />
+          <Route path="/experts" element={<ExpertsLanding />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
