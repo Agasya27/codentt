@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,7 +20,8 @@ import VerifyPhone from "./pages/VerifyPhone";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
-
+import Navbar from "@/components/landing/Navbar";
+import ComingSoonModal from "@/components/landing/ComingSoonModal";
 const queryClient = new QueryClient();
 
 // NOTE: Ideally, convert your Drive link to a direct asset or put the file in /public/logo.png
@@ -28,11 +30,15 @@ const LOGO_URL = "https://lh3.googleusercontent.com/d/1ooJlbR-uQdmS1faLFWIxKJ97s
 
 // Landing Page Component (from code2)
 const LandingPage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   return (
+    
     <div className="min-h-screen bg-[#F0F4F8] text-slate-800 font-sans overflow-x-hidden">
       
       {/* --- Navbar --- */}
       <nav className="fixed w-full z-50 bg-[#F0F4F8]/80 backdrop-blur-md border-b border-white/50">
+      <Navbar onCtaClick={() => setIsModalOpen(true)} />
+      <ComingSoonModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo Section */}
