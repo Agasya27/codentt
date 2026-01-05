@@ -27,7 +27,7 @@ public class DatabaseInitializer implements CommandLineRunner {
     @Value("${spring.datasource.username:postgres}")
     private String username;
 
-    @Value("${spring.datasource.password:}")
+    @Value("${spring.datasource.password:admin}")
     private String password;
 
     private static boolean initialized = false;
