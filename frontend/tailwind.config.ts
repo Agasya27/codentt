@@ -2,7 +2,13 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -17,6 +23,7 @@ export default {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
+        // From code 2 - HSL-based colors
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -54,11 +61,24 @@ export default {
         surface: "hsl(var(--surface))",
         "surface-elevated": "hsl(var(--surface-elevated))",
         blush: "hsl(var(--blush))",
+        
+        // From code 1 - Custom codentt colors
+        codentt: {
+          blue: '#2563EB', // Electric Blue
+          light: '#EFF6FF',
+          dark: '#1E40AF',
+        }
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        // From code 1 - Claymorphism shadows
+        'clay': '8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff',
+        'clay-hover': '12px 12px 20px #b8c2d1, -12px -12px 20px #ffffff',
+        'inner-clay': 'inset 6px 6px 12px #d1d9e6, inset -6px -6px 12px #ffffff',
       },
       keyframes: {
         "accordion-down": {

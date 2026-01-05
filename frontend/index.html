@@ -3,31 +3,103 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
     <title>Codentt - Where Your Code Meets Your Career</title>
     <meta name="description" content="Master DSA, DBMS, HR interviews and optimize your resume. Codentt is the interview prep platform built for CS students and freshers in India." />
     <meta name="author" content="Codentt" />
-    <meta name="keywords" content="interview prep, DSA, DBMS, coding interview, resume, HR interview, freshers, CS students, India" />
+    <meta name="keywords" content="interview prep, DSA, DBMS, coding interview, resume, HR interview, freshers, CS students, India, tech career, coding platform" />
     <link rel="canonical" href="https://codentt.com" />
 
+    <!-- Open Graph / Facebook -->
     <meta property="og:title" content="Codentt - Where Your Code Meets Your Career" />
     <meta property="og:description" content="Master DSA, DBMS, HR interviews and optimize your resume. The interview prep platform for CS students and freshers in India." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://codentt.com" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
+    <meta property="og:image" content="https://lh3.googleusercontent.com/d/1ooJlbR-uQdmS1faLFWIxKJ97sBpwjOSk" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Codentt - Interview Preparation Platform" />
+    <meta property="og:site_name" content="Codentt" />
+    
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@codentt" />
+    <meta name="twitter:creator" content="@codentt" />
     <meta name="twitter:title" content="Codentt - Where Your Code Meets Your Career" />
-    <meta name="twitter:description" content="Master DSA, DBMS, HR interviews and optimize your resume." />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:description" content="Master DSA, DBMS, HR interviews and optimize your resume. The ultimate interview prep platform for CS students." />
+    <meta name="twitter:image" content="https://lh3.googleusercontent.com/d/1ooJlbR-uQdmS1faLFWIxKJ97sBpwjOSk" />
+    <meta name="twitter:image:alt" content="Codentt Platform Preview" />
 
+    <!-- Favicon (add your actual favicon files later) -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    
+    <!-- Theme Color for Mobile Browsers -->
+    <meta name="theme-color" content="#3B82F6" />
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://lh3.googleusercontent.com/d/1ooJlbR-uQdmS1faLFWIxKJ97sBpwjOSk" as="image" />
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Codentt",
+      "url": "https://codentt.com",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web",
+      "description": "Master DSA, DBMS, HR interviews and optimize your resume. The interview prep platform for CS students and freshers.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+      },
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "Computer Science Students, Freshers, Job Seekers"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Codentt",
+        "url": "https://codentt.com"
+      }
+    }
+    </script>
+
+    <!-- PWA Manifest (optional - add later) -->
+    <!-- <link rel="manifest" href="/manifest.json"> -->
   </head>
 
   <body>
+    <noscript>
+      <div style="text-align: center; padding: 50px; font-family: Inter, sans-serif;">
+        <h1>Welcome to Codentt!</h1>
+        <p>JavaScript is required to run this application. Please enable JavaScript to continue.</p>
+      </div>
+    </noscript>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Simple fallback styling for noscript -->
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #F0F4F8;
+      }
+      #root {
+        min-height: 100vh;
+      }
+    </style>
   </body>
 </html>
