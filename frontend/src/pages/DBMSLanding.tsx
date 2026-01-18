@@ -4,18 +4,19 @@ import { ArrowRight, Database, Building2, Server, HardDrive } from "lucide-react
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/landing/Navbar";
 import ComingSoonModal from "@/components/landing/ComingSoonModal";
+import AnimatedCounter from "@/components/AnimatedCounter";
 
 const companies = [
-  { name: "Google", logo: "🔍" },
-  { name: "Amazon", logo: "📦" },
-  { name: "Microsoft", logo: "🪟" },
-  { name: "Meta", logo: "👤" },
-  { name: "Apple", logo: "🍎" },
-  { name: "Netflix", logo: "🎬" },
-  { name: "Oracle", logo: "🔴" },
-  { name: "Uber", logo: "🚗" },
-  { name: "Flipkart", logo: "🛒" },
-  { name: "TCS", logo: "💼" },
+  { name: "Google", logo: "/Google.jpg" },
+  { name: "Amazon", logo: "/Amazon.jpg" },
+  { name: "Microsoft", logo: "/Microsoft.avif" },
+  { name: "Meta", logo: "/meta.png" },
+  { name: "Apple", logo: "/Apple.png" },
+  { name: "Netflix", logo: "/Netflix.jpg" },
+  { name: "Oracle", logo: "/Oracle.jpg" },
+  { name: "Uber", logo: "/Uber.png" },
+  { name: "Flipkart", logo: "/Flipkart.png" },
+  { name: "TCS", logo: "/TCS.png" },
 ];
 
 const features = [
@@ -80,11 +81,63 @@ const DBMSLanding = () => {
                 to={`/dbms/${company.name.toLowerCase()}`}
                 className="group bg-card border border-border rounded-xl p-6 text-center hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
               >
-                <div className="text-4xl mb-3">{company.logo}</div>
+                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-background shadow-sm border border-border/60">
+                  <img
+                    src={company.logo}
+                    alt={`${company.name} logo`}
+                    className="h-10 w-10 object-contain"
+                    loading="lazy"
+                    onError={(event) => {
+                      const target = event.currentTarget;
+                      if (!target.src.endsWith("placeholder.svg")) {
+                        target.src = "/placeholder.svg";
+                      }
+                    }}
+                  />
+                </div>
                 <h3 className="font-semibold group-hover:text-primary transition-colors">{company.name}</h3>
-                <p className="text-xs text-muted-foreground mt-1">10 Questions</p>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
+            <div>
+              <AnimatedCounter
+                value={500}
+                suffix="+"
+                className="text-4xl font-bold text-primary mb-2"
+              />
+              <div className="text-muted-foreground text-sm">Problems</div>
+            </div>
+            <div>
+              <AnimatedCounter
+                value={10}
+                suffix="+"
+                className="text-4xl font-bold text-primary mb-2"
+              />
+              <div className="text-muted-foreground text-sm">Companies</div>
+            </div>
+            <div>
+              <AnimatedCounter
+                value={20}
+                suffix="+"
+                className="text-4xl font-bold text-primary mb-2"
+              />
+              <div className="text-muted-foreground text-sm">Topics</div>
+            </div>
+            <div>
+              <AnimatedCounter
+                value={90}
+                suffix="%"
+                className="text-4xl font-bold text-primary mb-2"
+              />
+              <div className="text-muted-foreground text-sm">Success Rate</div>
+            </div>
           </div>
         </div>
       </section>

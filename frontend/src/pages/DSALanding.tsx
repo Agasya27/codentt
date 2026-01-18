@@ -4,18 +4,19 @@ import { ArrowRight, Code2, Building2, BookOpen, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/landing/Navbar";
 import ComingSoonModal from "@/components/landing/ComingSoonModal";
+import AnimatedCounter from "@/components/AnimatedCounter";
 
 const companies = [
-  { name: "Google", logo: "🔍" },
-  { name: "Amazon", logo: "📦" },
-  { name: "Microsoft", logo: "🪟" },
-  { name: "Meta", logo: "👤" },
-  { name: "Apple", logo: "🍎" },
-  { name: "Netflix", logo: "🎬" },
-  { name: "Adobe", logo: "🎨" },
-  { name: "Uber", logo: "🚗" },
-  { name: "Flipkart", logo: "🛒" },
-  { name: "Infosys", logo: "💼" },
+  { name: "Google", logo: "/Google.jpg" },
+  { name: "Amazon", logo: "/Amazon.jpg" },
+  { name: "Microsoft", logo: "/Microsoft.avif" },
+  { name: "Meta", logo: "/meta.png" },
+  { name: "Apple", logo: "/Apple.png" },
+  { name: "Netflix", logo: "/Netflix.jpg" },
+  { name: "Adobe", logo: "/Adobe.png" },
+  { name: "Uber", logo: "/Uber.png" },
+  { name: "Flipkart", logo: "/Flipkart.png" },
+  { name: "Infosys", logo: "/infosys.png" },
 ];
 
 const features = [
@@ -51,6 +52,14 @@ const DSALanding = () => {
               Crack top DSA questions from leading tech companies. Practice with our curated problem sets and ace your coding interviews.
             </p>
 
+            <div className="flex justify-center mb-10">
+              <Link to="/codepad">
+                <Button size="lg" variant="secondary" className="rounded-full">
+                  Launch Interactive CodePad
+                </Button>
+              </Link>
+            </div>
+
             {/* Features Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
               {features.map((feature) => (
@@ -80,9 +89,21 @@ const DSALanding = () => {
                 to={`/dsa/${company.name.toLowerCase()}`}
                 className="group bg-card border border-border rounded-xl p-6 text-center hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
               >
-                <div className="text-4xl mb-3">{company.logo}</div>
+                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-background shadow-sm border border-border/60">
+                  <img
+                    src={company.logo}
+                    alt={`${company.name} logo`}
+                    className="h-10 w-10 object-contain"
+                    loading="lazy"
+                    onError={(event) => {
+                      const target = event.currentTarget;
+                      if (!target.src.endsWith("placeholder.svg")) {
+                        target.src = "/placeholder.svg";
+                      }
+                    }}
+                  />
+                </div>
                 <h3 className="font-semibold group-hover:text-primary transition-colors">{company.name}</h3>
-                <p className="text-xs text-muted-foreground mt-1">10 Questions</p>
               </Link>
             ))}
           </div>
@@ -94,19 +115,36 @@ const DSALanding = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">500+</div>
+              <AnimatedCounter
+                value={500}
+                suffix="+"
+                className="text-4xl font-bold text-primary mb-2"
+              />
               <div className="text-muted-foreground text-sm">Problems</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">10+</div>
+              <AnimatedCounter
+                value={10}
+                suffix="+"
+                className="text-4xl font-bold text-primary mb-2"
+              />
               <div className="text-muted-foreground text-sm">Companies</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">50K+</div>
+              <AnimatedCounter
+                value={50000}
+                suffix="K+"
+                className="text-4xl font-bold text-primary mb-2"
+                format={(current) => Math.round(current / 1000).toString()}
+              />
               <div className="text-muted-foreground text-sm">Students</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">95%</div>
+              <AnimatedCounter
+                value={95}
+                suffix="%"
+                className="text-4xl font-bold text-primary mb-2"
+              />
               <div className="text-muted-foreground text-sm">Success Rate</div>
             </div>
           </div>

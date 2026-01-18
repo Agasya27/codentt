@@ -12,6 +12,59 @@ interface NavbarProps {
   onCtaClick: () => void;
 }
 
+const NavbarLogo = () => (
+  <svg
+    className="h-10 w-auto"
+    viewBox="0 0 520 140"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-label="Codentt"
+  >
+    <path
+      d="M60 30 L30 70 L60 110"
+      fill="none"
+      stroke="#F97316"
+      strokeWidth="10"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M140 30 L170 70 L140 110"
+      fill="none"
+      stroke="#2563EB"
+      strokeWidth="10"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <ellipse cx="100" cy="60" rx="14" ry="26" fill="#111827" />
+    <circle cx="100" cy="55" r="5" fill="#60A5FA" />
+    <polygon points="100,20 90,38 110,38" fill="#111827" />
+    <polygon points="86,70 70,90 88,86" fill="#1F2937" />
+    <polygon points="114,70 130,90 112,86" fill="#1F2937" />
+    <polygon points="100,92 90,118 100,108 110,118" fill="#F97316" />
+    <polygon points="100,96 94,112 100,106 106,112" fill="#FACC15" />
+    <text
+      x="200"
+      y="75"
+      fontFamily="Inter, Segoe UI, Arial, sans-serif"
+      fontSize="48"
+      fontWeight="700"
+      fill="#111827"
+    >
+      Codentt
+    </text>
+    <text
+      x="200"
+      y="105"
+      fontFamily="Inter, Segoe UI, Arial, sans-serif"
+      fontSize="14"
+      letterSpacing="1.5"
+      fill="#6B7280"
+    >
+      CODE. COMPETE. CONQUER.
+    </text>
+  </svg>
+);
+
 const Navbar = ({ onCtaClick }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
@@ -63,8 +116,6 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
   const navLinks = [
     { href: "#features", label: "Features", hasDropdown: true },
     { to: "/experts", label: "Experts", isLink: true },
-    { href: "#testimonials", label: "Testimonials" },
-    { href: "#how-it-works", label: "How It Works" },
     { href: "#faq", label: "FAQ" },
   ];
 
@@ -77,10 +128,10 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4">
       {/* Curved pill navbar container */}
-      <div className="bg-background/80 backdrop-blur-xl border border-border/50 rounded-full shadow-lg shadow-primary/5 px-3 py-2 flex items-center gap-2">
-        {/* Logo - Text only */}
-        <Link to="/" className="text-xl font-bold text-foreground px-4">
-          <span className="text-primary">Code</span>ntt
+      <div className="bg-white border border-codentt-blue/20 rounded-full px-4 py-2 flex items-center gap-3">
+        {/* Logo */}
+        <Link to="/" className="flex items-center px-4">
+          <NavbarLogo />
         </Link>
 
         {/* Desktop Navigation */}
@@ -94,7 +145,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
                   onMouseLeave={() => setIsFeaturesOpen(false)}
                 >
                   <button
-                    className="flex items-center gap-1 text-foreground/70 hover:text-foreground transition-colors duration-200 font-medium text-sm px-4 py-2 rounded-full hover:bg-muted/50"
+                    className="flex items-center gap-1 text-codentt-blue hover:text-codentt-dark transition-colors duration-200 font-medium text-sm px-4 py-2 rounded-full hover:bg-codentt-light"
                   >
                     {link.label}
                     <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isFeaturesOpen ? 'rotate-180' : ''}`} />
@@ -103,17 +154,17 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
                   {/* Modern Semi-Blurred Dropdown */}
                   {isFeaturesOpen && (
                     <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 animate-fade-in">
-                      <div className="bg-background/90 backdrop-blur-2xl border border-border/50 rounded-2xl shadow-2xl shadow-primary/10 p-2 min-w-[280px]">
+                      <div className="bg-white/95 backdrop-blur-2xl border border-codentt-blue/15 rounded-2xl shadow-2xl shadow-codentt-blue/15 p-2 min-w-[280px]">
                         {featurePages.map((page) => (
                           <Link
                             key={page.to}
                             to={page.to}
-                            className="flex flex-col gap-0.5 px-4 py-3 rounded-xl hover:bg-primary/10 transition-all duration-200 group"
+                            className="flex flex-col gap-0.5 px-4 py-3 rounded-xl hover:bg-codentt-light transition-all duration-200 group"
                           >
-                            <span className="font-medium text-foreground group-hover:text-primary transition-colors">
+                            <span className="font-medium text-codentt-blue group-hover:text-codentt-dark transition-colors">
                               {page.label}
                             </span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-slate-500">
                               {page.description}
                             </span>
                           </Link>
@@ -125,14 +176,14 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
               ) : link.isLink ? (
                 <Link
                   to={link.to!}
-                  className="text-foreground/70 hover:text-foreground transition-colors duration-200 font-medium text-sm px-4 py-2 rounded-full hover:bg-muted/50"
+                  className="text-codentt-blue hover:text-codentt-dark transition-colors duration-200 font-medium text-sm px-4 py-2 rounded-full hover:bg-codentt-light"
                 >
                   {link.label}
                 </Link>
               ) : (
                 <a
                   href={link.href}
-                  className="text-foreground/70 hover:text-foreground transition-colors duration-200 font-medium text-sm px-4 py-2 rounded-full hover:bg-muted/50"
+                  className="text-codentt-blue hover:text-codentt-dark transition-colors duration-200 font-medium text-sm px-4 py-2 rounded-full hover:bg-codentt-light"
                 >
                   {link.label}
                 </a>
@@ -148,7 +199,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="rounded-full h-9 w-9 p-0"
+                  className="rounded-full h-9 w-9 p-0 text-codentt-blue hover:text-codentt-dark hover:bg-codentt-light"
                 >
                   <Avatar className="h-9 w-9">
                     <AvatarImage src={user?.profilePictureUrl} alt={user?.username} />
@@ -158,7 +209,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 bg-white border border-codentt-blue/20">
                 <div className="px-2 py-1.5">
                   <p className="text-sm font-medium">{user?.fullName || user?.username}</p>
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
@@ -188,16 +239,16 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
               <Button
                 variant="ghost"
                 onClick={() => navigate("/auth/login")}
-                className="rounded-full"
+                className="rounded-full text-codentt-blue hover:text-codentt-dark hover:bg-codentt-light"
               >
                 Login
               </Button>
               <Button
                 onClick={onCtaClick}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5 py-5 font-medium text-sm gap-2 group transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40"
+                className="bg-codentt-blue hover:bg-codentt-dark text-white rounded-full px-5 py-5 font-medium text-sm gap-2 group transition-all duration-300 shadow-lg shadow-codentt-blue/30 hover:shadow-codentt-blue/40"
               >
                 Start Your Journey
-                <div className="w-6 h-6 rounded-full bg-primary-foreground/20 flex items-center justify-center group-hover:bg-primary-foreground/30 transition-colors">
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
                   <ArrowRight className="h-3.5 w-3.5" />
                 </div>
               </Button>
@@ -210,7 +261,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full"
+            className="rounded-full text-codentt-blue hover:text-codentt-dark hover:bg-codentt-light"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -220,13 +271,13 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="fixed inset-x-4 top-20 md:hidden bg-background/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl p-4 animate-fade-in">
+        <div className="fixed inset-x-4 top-20 md:hidden bg-white/95 backdrop-blur-xl border border-codentt-blue/20 rounded-2xl shadow-2xl p-4 animate-fade-in">
           <div className="flex flex-col gap-2">
             {/* Features with sub-items */}
             <div className="space-y-1">
               <button
                 onClick={() => setIsFeaturesOpen(!isFeaturesOpen)}
-                className="flex items-center justify-between w-full text-foreground/80 hover:text-foreground transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-muted/50 font-medium"
+                className="flex items-center justify-between w-full text-codentt-blue hover:text-codentt-dark transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-codentt-light font-medium"
               >
                 Features
                 <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isFeaturesOpen ? 'rotate-180' : ''}`} />
@@ -238,7 +289,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
                       key={page.to}
                       to={page.to}
                       onClick={() => setIsMenuOpen(false)}
-                      className="block py-2 px-3 text-foreground/70 hover:text-primary transition-colors rounded-lg hover:bg-primary/5"
+                      className="block py-2 px-3 text-codentt-blue hover:text-codentt-dark transition-colors rounded-lg hover:bg-codentt-light"
                     >
                       {page.label}
                     </Link>
@@ -253,7 +304,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
                   key={link.to}
                   to={link.to!}
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-foreground/80 hover:text-foreground transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-muted/50 font-medium"
+                  className="text-codentt-blue hover:text-codentt-dark transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-codentt-light font-medium"
                 >
                   {link.label}
                 </Link>
@@ -262,7 +313,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-foreground/80 hover:text-foreground transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-muted/50 font-medium"
+                  className="text-codentt-blue hover:text-codentt-dark transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-codentt-light font-medium"
                 >
                   {link.label}
                 </a>
@@ -274,7 +325,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
                 <Link
                   to="/profile"
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-foreground/80 hover:text-foreground transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-muted/50 font-medium"
+                  className="text-codentt-blue hover:text-codentt-dark transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-codentt-light font-medium"
                 >
                   Profile
                 </Link>
@@ -292,7 +343,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
                 <Link
                   to="/auth/login"
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-foreground/80 hover:text-foreground transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-muted/50 font-medium"
+                  className="text-codentt-blue hover:text-codentt-dark transition-colors duration-200 py-2 px-3 rounded-xl hover:bg-codentt-light font-medium"
                 >
                   Login
                 </Link>
@@ -301,7 +352,7 @@ const Navbar = ({ onCtaClick }: NavbarProps) => {
                     setIsMenuOpen(false);
                     onCtaClick();
                   }}
-                  className="w-full mt-2 rounded-full gap-2"
+                  className="w-full mt-2 rounded-full gap-2 bg-codentt-blue hover:bg-codentt-dark"
                 >
                   Start Your Journey
                   <ArrowRight className="h-4 w-4" />

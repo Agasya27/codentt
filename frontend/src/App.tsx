@@ -20,54 +20,20 @@ import VerifyPhone from "./pages/VerifyPhone";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
+import CodePad from "@/pages/CodePad";
 import Navbar from "@/components/landing/Navbar";
 import ComingSoonModal from "@/components/landing/ComingSoonModal";
 const queryClient = new QueryClient();
-
-// NOTE: Ideally, convert your Drive link to a direct asset or put the file in /public/logo.png
-// For now, I am using a placeholder, please replace with your actual file path.
-const LOGO_URL = "https://lh3.googleusercontent.com/d/1ooJlbR-uQdmS1faLFWIxKJ97sBpwjOSk";
 
 // Landing Page Component (from code2)
 const LandingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   return (
     
-    <div className="min-h-screen bg-[#F0F4F8] text-slate-800 font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden">
       
-      {/* --- Navbar --- */}
-      <nav className="fixed w-full z-50 bg-[#F0F4F8]/80 backdrop-blur-md border-b border-white/50">
       <Navbar onCtaClick={() => setIsModalOpen(true)} />
       <ComingSoonModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            {/* Logo Section */}
-            <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer">
-              <img src={LOGO_URL} alt="Codentt Logo" className="h-10 w-auto object-contain" />
-              <span className="font-bold text-2xl tracking-tight text-slate-800">Codentt</span>
-            </div>
-            
-            {/* Desktop Nav */}
-            <div className="hidden md:flex space-x-8 items-center">
-              <a href="/dsa" className="text-slate-600 hover:text-codentt-blue font-medium transition-colors">
-                DSA Prep
-              </a>
-              <a href="/hr" className="text-slate-600 hover:text-codentt-blue font-medium transition-colors">
-                Mock Interviews
-              </a>
-              <a href="#" className="text-slate-600 hover:text-codentt-blue font-medium transition-colors">
-                Resume Builder
-              </a>
-              <a href="#" className="text-slate-600 hover:text-codentt-blue font-medium transition-colors">
-                Pricing
-              </a>
-              <a href="/auth/login" className="px-6 py-2.5 rounded-2xl bg-codentt-blue text-white font-semibold shadow-clay hover:shadow-clay-hover transition-all transform hover:-translate-y-1">
-                Get Started
-              </a>
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {/* --- Hero Section --- */}
       <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
@@ -81,7 +47,7 @@ const LandingPage = () => {
               transition={{ duration: 0.8 }}
               className="text-center lg:text-left"
             >
-              <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-white shadow-inner-clay text-codentt-blue font-semibold text-sm">
+              <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-white shadow-inner-clay text-primary font-semibold text-sm">
                 Launch your tech career
               </div>
               <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1] mb-6">
@@ -90,7 +56,7 @@ const LandingPage = () => {
                   Meets Your Career
                 </span>
               </h1>
-              <p className="text-lg text-slate-600 mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+              <p className="text-lg text-muted-foreground mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
                 Master DSA, crack HR rounds, and build the perfect resume. The ultimate interview prep platform tailored for Indian CS students.
               </p>
               
@@ -98,7 +64,7 @@ const LandingPage = () => {
                 <a href="/dsa" className="px-8 py-4 rounded-2xl bg-codentt-blue text-white font-bold text-lg shadow-clay hover:shadow-clay-hover hover:bg-blue-600 transition-all flex items-center justify-center gap-2">
                   Start Learning Now <ArrowRight size={20} />
                 </a>
-                <a href="#" className="px-8 py-4 rounded-2xl bg-white text-slate-700 font-bold text-lg shadow-clay hover:shadow-clay-hover transition-all border border-white">
+                <a href="#" className="px-8 py-4 rounded-2xl bg-white text-foreground font-bold text-lg shadow-clay hover:shadow-clay-hover transition-all border border-border/60">
                   View Roadmap
                 </a>
               </div>
@@ -155,8 +121,8 @@ const LandingPage = () => {
       <section className="py-24 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Everything you need to get hired</h2>
-            <p className="text-slate-500">Comprehensive preparation for every stage of the recruitment process.</p>
+            <h2 className="text-3xl font-bold text-foreground mb-4">Everything you need to get hired</h2>
+            <p className="text-muted-foreground">Comprehensive preparation for every stage of the recruitment process.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -164,21 +130,18 @@ const LandingPage = () => {
               icon={<Binary size={32} />}
               title="DSA Mastery"
               desc="Interactive visualizers for Binary Trees, Graphs, and DP. Master the logic, not just the code."
-              color="text-blue-600"
               link="/dsa"
             />
             <FeatureCard 
               icon={<Users size={32} />}
               title="HR & Behavioral"
               desc="AI-driven mock interviews to perfect your 'Tell me about yourself' and situational answers."
-              color="text-cyan-600"
               link="/hr"
             />
              <FeatureCard 
               icon={<FileText size={32} />}
               title="Resume Optimizer"
               desc="ATS-friendly templates designed specifically for freshers and internships."
-              color="text-indigo-600"
               link="#"
             />
           </div>
@@ -189,19 +152,19 @@ const LandingPage = () => {
 };
 
 // Helper Component for Cards
-const FeatureCard = ({ icon, title, desc, color, link }) => (
+const FeatureCard = ({ icon, title, desc, link }) => (
   <motion.div 
     whileHover={{ y: -10 }}
-    className="bg-[#F0F4F8] p-8 rounded-[2.5rem] shadow-clay border border-white transition-all"
+    className="bg-secondary p-8 rounded-[2.5rem] shadow-clay border border-border transition-all"
   >
-    <div className={`w-16 h-16 rounded-2xl bg-white shadow-inner-clay flex items-center justify-center mb-6 ${color}`}>
+    <div className="w-16 h-16 rounded-2xl bg-white shadow-inner-clay flex items-center justify-center mb-6 text-primary">
       {icon}
     </div>
-    <h3 className="text-xl font-bold text-slate-800 mb-3">{title}</h3>
-    <p className="text-slate-600 leading-relaxed mb-4">
+    <h3 className="text-xl font-bold text-foreground mb-3">{title}</h3>
+    <p className="text-muted-foreground leading-relaxed mb-4">
       {desc}
     </p>
-    <a href={link} className="text-codentt-blue font-medium hover:underline">
+    <a href={link} className="text-primary font-medium hover:underline">
       Explore →
     </a>
   </motion.div>
@@ -220,6 +183,7 @@ const App = () => (
           <Route path="/dsa/:company" element={<DSACompany />} />
           <Route path="/dbms" element={<DBMSLanding />} />
           <Route path="/dbms/:company" element={<DBMSCompany />} />
+          <Route path="/codepad" element={<CodePad />} />
           <Route path="/hr" element={<HRLanding />} />
           <Route path="/experts" element={<ExpertsLanding />} />
           {/* Authentication Routes */}

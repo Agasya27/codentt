@@ -1,22 +1,45 @@
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { Play, ChevronDown, Building2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Building2, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Editor from "@monaco-editor/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Navbar from "@/components/landing/Navbar";
-import ComingSoonModal from "@/components/landing/ComingSoonModal";
-import DiscussionForum from "@/components/DiscussionForum";
+import { Badge } from "@/components/ui/badge";
+import { BackgroundShapes } from "@/components/codepad/BackgroundShapes";
+import { Header } from "@/components/codepad/Header";
+import { ProblemPanel } from "@/components/codepad/ProblemPanel";
+import { Problem } from "@/data/mockProblems";
+import { cn } from "@/lib/utils";
 
-const companies = [
-  "Google", "Amazon", "Microsoft", "Meta", "Apple", 
-  "Netflix", "Oracle", "Uber", "Flipkart", "TCS"
+const companyList = [
+  "Google",
+  "Amazon",
+  "Microsoft",
+  "Meta",
+  "Apple",
+  "Netflix",
+  "Oracle",
+  "Uber",
+  "Flipkart",
+  "TCS",
 ];
+
+const companyIcons: Record<string, string> = {
+  google: "🔍",
+  amazon: "📦",
+  microsoft: "🪟",
+  meta: "👥",
+  apple: "🍎",
+  netflix: "🎬",
+  oracle: "🏛️",
+  uber: "🚕",
+  flipkart: "🛒",
+  tcs: "💼",
+};
 
 const questionsByCompany: Record<string, { id: number; title: string; topic: string }[]> = {
   google: [
@@ -141,147 +164,373 @@ const questionsByCompany: Record<string, { id: number; title: string; topic: str
   ],
 };
 
-const getTopicColor = (topic: string) => {
-  const colors = [
-    "text-purple-600 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-400",
-    "text-blue-600 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400",
-    "text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400",
-    "text-orange-600 bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400",
-    "text-cyan-600 bg-cyan-100 dark:bg-cyan-900/30 dark:text-cyan-400",
-    "text-pink-600 bg-pink-100 dark:bg-pink-900/30 dark:text-pink-400",
-  ];
-  const index = topic.length % colors.length;
-  return colors[index];
+const sqlLanguages = [{ id: "sql", name: "SQL" }];
+
+const difficultyStyles: Record<Problem["difficulty"], string> = {
+  Easy: "bg-emerald-100 text-emerald-600",
+  Medium: "bg-amber-100 text-amber-700",
+  Hard: "bg-red-100 text-red-600",
+};
+
+const difficultyPriority: Record<Problem["difficulty"], number> = {
+  Easy: 0,
+  Medium: 1,
+  Hard: 2,
+};
+
+const toTitleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
+const deriveDifficulty = (id: number): Problem["difficulty"] => {
+  if (id <= 3) return "Easy";
+  if (id <= 7) return "Medium";
+  return "Hard";
+};
+
+const buildSqlStarterCode = (title: string, topic: string): Record<string, string> => ({
+  sql: `-- ${title}
+-- Topic: ${topic}
+-- Outline your SQL solution below
+
+WITH preparation AS (
+    -- Prepare intermediate data here
+    SELECT *
+    FROM source_table
+)
+SELECT *
+FROM preparation;
+`,
+});
+
+const fallbackProblem: Problem = {
+  id: 0,
+  title: "Design a simple ER diagram",
+  difficulty: "Easy",
+  company: "generic",
+  companyIcon: "🗄️",
+  description: "Sketch entities, attributes, and relationships for a student-course enrollment schema.",
+  examples: [
+    { input: "Entities: Student, Course", output: "Relationships: Student ENROLLS Course" },
+    { input: "Attributes: student_id, course_id", output: "Primary Keys identified" },
+  ],
+  constraints: ["Identify primary and foreign keys.", "Ensure cardinality is explicit."],
+  starterCode: buildSqlStarterCode("Design a simple ER diagram", "ERD"),
+  testCases: [
+    { input: "ER diagram completeness", expectedOutput: "All required relationships captured" },
+    { input: "Key identification", expectedOutput: "Primary and foreign keys documented" },
+  ],
+};
+
+const buildProblemsForCompany = (
+  companyKey: string,
+  questions: { id: number; title: string; topic: string }[],
+): Problem[] => {
+  const icon = companyIcons[companyKey] ?? "🏢";
+  const companyName = toTitleCase(companyKey);
+
+  return questions.map((question) => ({
+    id: question.id,
+    title: question.title,
+    difficulty: deriveDifficulty(question.id),
+    company: companyKey,
+    companyIcon: icon,
+    description: `Craft a solution for \"${question.title}\" as discussed in ${companyName} database interviews. Highlight indexing, transaction handling, and trade-offs as you go.`,
+    examples: [
+      { input: `Sample dataset for ${question.topic}`, output: "Discuss expected rows and ordering." },
+      { input: "Edge case: sparse data", output: "Explain how the query handles empty results." },
+    ],
+    constraints: [
+      `${companyName} expects strong fundamentals in ${question.topic}.`,
+      "Explain assumptions, validation steps, and performance considerations.",
+    ],
+    starterCode: buildSqlStarterCode(question.title, question.topic),
+    testCases: [
+      { input: "Representative dataset", expectedOutput: "Correct result set" },
+      { input: "Edge condition", expectedOutput: "Graceful handling with no errors" },
+    ],
+  }));
 };
 
 const DBMSCompany = () => {
   const { company } = useParams();
-  const companyName = company || "google";
-  const questions = questionsByCompany[companyName] || questionsByCompany.google;
-  const [selectedQuestion, setSelectedQuestion] = useState(questions[0]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [code, setCode] = useState(`-- ${selectedQuestion.title}
--- Topic: ${selectedQuestion.topic}
+  const navigate = useNavigate();
+  const location = useLocation();
 
-SELECT 
-  *
-FROM 
-  your_table
-WHERE 
-  condition = 'value';
-`);
+  const companyKey = (company ?? "google").toLowerCase();
+  const questionBank = useMemo(
+    () => questionsByCompany[companyKey] ?? questionsByCompany.google,
+    [companyKey],
+  );
+  const problems = useMemo(() => buildProblemsForCompany(companyKey, questionBank), [companyKey, questionBank]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const displayCompanyName = companyName.charAt(0).toUpperCase() + companyName.slice(1);
+  const questionOptions = useMemo(
+    () =>
+      questionBank
+        .map((item, index) => {
+          const difficulty = deriveDifficulty(item.id);
+          return { question: item, index, difficulty };
+        })
+        .sort((a, b) => {
+          const diff = difficultyPriority[a.difficulty] - difficultyPriority[b.difficulty];
+          if (diff !== 0) {
+            return diff;
+          }
+          return a.question.title.localeCompare(b.question.title);
+        }),
+    [questionBank],
+  );
+
+  const selectedQuestion = useMemo(
+    () => questionOptions.find((option) => option.index === currentIndex),
+    [questionOptions, currentIndex],
+  );
+
+  const difficultySummary = useMemo(
+    () =>
+      questionOptions.reduce(
+        (acc, { difficulty }) => {
+          acc[difficulty] += 1;
+          return acc;
+        },
+        { Easy: 0, Medium: 0, Hard: 0 },
+      ),
+    [questionOptions],
+  );
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [companyKey]);
+
+  const currentProblem = problems[currentIndex] ?? fallbackProblem;
+  const currentTopic = questionBank[currentIndex]?.topic ?? "SQL Practice";
+  const companyName = toTitleCase(companyKey);
+  const companyIcon = companyIcons[companyKey] ?? "🏢";
+
+  const cycleProblem = () => {
+    if (!problems.length) {
+      return;
+    }
+    setCurrentIndex((index) => (index + 1) % problems.length);
+  };
+
+  const handleSelectProblem = (index: number) => {
+    setCurrentIndex(index);
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar onCtaClick={() => setIsModalOpen(true)} />
-      <ComingSoonModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
+      <BackgroundShapes />
 
-      <main className="pt-24 pb-8">
-        <div className="container mx-auto px-4">
-          {/* Page Title with Company Dropdown */}
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold mb-1">
-                <span className="text-primary">{displayCompanyName}</span> DBMS Questions
-              </h1>
-              <p className="text-muted-foreground">Practice SQL and database questions asked at {displayCompanyName}</p>
-            </div>
-            
-            {/* Company Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <Building2 className="h-4 w-4" />
-                  {displayCompanyName}
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-card border border-border">
-                {companies.map((comp) => (
-                  <DropdownMenuItem key={comp} asChild>
-                    <Link 
-                      to={`/dbms/${comp.toLowerCase()}`}
-                      className={comp.toLowerCase() === companyName ? "bg-primary/10 text-primary" : ""}
+      <Header onLeaveWorkspace={() => navigate("/dbms")} />
+
+      <div className="px-4 pb-12 md:px-6">
+        <div className="mx-auto w-full max-w-[1600px] space-y-8">
+          <div className="glass-card flex flex-col gap-5 rounded-3xl border border-border/40 bg-background/80 p-6 shadow-xl backdrop-blur-xl">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-start gap-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-3xl">
+                  {companyIcon}
+                </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Deep dive scenario</p>
+                  <h1 className="text-2xl font-semibold text-foreground md:text-3xl">{currentProblem.title}</h1>
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        "rounded-full px-3 py-1 font-semibold",
+                        difficultyStyles[currentProblem.difficulty],
+                      )}
                     >
-                      {comp}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                      {currentProblem.difficulty}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-2 rounded-full border-primary/40 bg-primary/5 text-primary"
+                    >
+                      <span>{companyIcon}</span>
+                      {companyName}
+                    </Badge>
+                    <Badge variant="outline" className="rounded-full border-border/50 bg-background/80 text-muted-foreground">
+                      {currentTopic}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  variant="outline"
+                  className="rounded-full border-border/50 bg-background/80 px-5 py-2 text-sm font-medium shadow-sm backdrop-blur"
+                  onClick={cycleProblem}
+                >
+                  Next scenario
+                </Button>
+                <Button
+                  className="rounded-full bg-gradient-to-r from-primary/90 to-primary px-5 py-2 text-sm font-semibold shadow-lg shadow-primary/40"
+                  onClick={() =>
+                    navigate("/codepad", {
+                      state: {
+                        origin: "dbms",
+                        problem: currentProblem,
+                        languages: sqlLanguages,
+                        defaultLanguage: "sql",
+                        returnTo: location.pathname,
+                      },
+                    })
+                  }
+                >
+                  Open sandbox
+                </Button>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground md:max-w-3xl">
+              Rehearse real {companyName} data rounds. Explain indexing strategy, transaction handling, and SQL trade-offs
+              as you craft queries for the interviewer.
+            </p>
           </div>
 
-          {/* Main Layout - Questions and Editor */}
-          <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] gap-6">
-            {/* Questions List */}
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-              <div className="p-4 border-b border-border bg-muted/30">
-                <h2 className="font-semibold">Questions ({questions.length})</h2>
-              </div>
-              <div className="divide-y divide-border max-h-[300px] md:max-h-[calc(100vh-220px)] overflow-y-auto">
-                {questions.map((q) => (
-                  <button
-                    key={q.id}
-                    onClick={() => {
-                      setSelectedQuestion(q);
-                      setCode(`-- ${q.title}\n-- Topic: ${q.topic}\n\nSELECT \n  *\nFROM \n  your_table\nWHERE \n  condition = 'value';`);
-                    }}
-                    className={`w-full text-left p-4 hover:bg-muted/50 transition-colors ${
-                      selectedQuestion.id === q.id ? "bg-primary/5 border-l-2 border-primary" : ""
-                    }`}
-                  >
-                    <div className="flex flex-col gap-2">
-                      <span className="text-xs text-muted-foreground">#{q.id}</span>
-                      <h3 className="font-medium text-sm line-clamp-2">{q.title}</h3>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${getTopicColor(q.topic)}`}>
-                        {q.topic}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Code Editor */}
-            <div className="bg-card rounded-xl border border-border overflow-hidden flex flex-col">
-              <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
-                <div>
-                  <h2 className="font-semibold">{selectedQuestion.title}</h2>
-                  <p className="text-sm text-muted-foreground">{selectedQuestion.topic}</p>
+          <div className="flex flex-col gap-8 xl:flex-row">
+            <aside className="flex w-full flex-shrink-0 flex-col gap-6 xl:w-96 2xl:w-[420px]">
+              <div className="glass-card rounded-3xl border border-border/40 p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Company</p>
+                    <h2 className="text-2xl font-semibold text-foreground">{companyName}</h2>
+                    <p className="text-sm text-muted-foreground">{questionBank.length} SQL scenarios</p>
+                  </div>
+                  <span className="text-3xl" aria-hidden="true">
+                    {companyIcon}
+                  </span>
                 </div>
-                <Button className="gap-2">
-                  <Play className="h-4 w-4" />
-                  Run Query
-                </Button>
+
+                <div className="mt-5">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex w-full items-center justify-between rounded-xl border border-border/40 bg-background/70 px-3 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:border-border">
+                      <span className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4" />
+                        {companyName}
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      {companyList.map((label) => (
+                        <DropdownMenuItem key={label} asChild>
+                          <Link to={`/dbms/${label.toLowerCase()}`} className="flex items-center gap-2">
+                            <span>{companyIcons[label.toLowerCase()] ?? "🏢"}</span>
+                            <span>{label}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
-              <div className="flex-1 min-h-[400px] md:min-h-[500px]">
-                <Editor
-                  height="100%"
-                  defaultLanguage="sql"
-                  value={code}
-                  onChange={(value) => setCode(value || "")}
-                  theme="vs-dark"
-                  options={{
-                    minimap: { enabled: false },
-                    fontSize: 14,
-                    padding: { top: 16 },
-                    scrollBeyondLastLine: false,
-                  }}
-                />
+
+              <div className="glass-card w-full max-w-[420px] rounded-3xl border border-border/40">
+                <div className="border-b border-border/40 px-6 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">SQL Workshop</p>
+                </div>
+
+                <div className="space-y-5 px-6 py-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Selected scenario</p>
+                      <p className="mt-1 line-clamp-2 text-sm font-semibold text-foreground">
+                        {currentProblem.title}
+                      </p>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="flex items-center gap-2 rounded-full border border-border/40 bg-background/80 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-foreground transition hover:border-primary/40 hover:text-primary"
+                          disabled={!questionOptions.length}
+                        >
+                          <span className="line-clamp-1 max-w-[180px] text-left">
+                            {selectedQuestion
+                              ? `#${selectedQuestion.question.id} · ${selectedQuestion.question.title}`
+                              : "No scenarios"}
+                          </span>
+                          <ChevronDown className="h-3.5 w-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-80 max-h-72 overflow-auto">
+                        {questionOptions.map(({ question, index: originalIndex, difficulty }) => {
+                          const isActive = originalIndex === currentIndex;
+                          return (
+                            <DropdownMenuItem
+                              key={question.id}
+                              onSelect={(event) => {
+                                event.preventDefault();
+                                handleSelectProblem(originalIndex);
+                              }}
+                              className="flex items-start gap-3 px-3 py-2"
+                            >
+                              <Check className={cn("mt-0.5 h-4 w-4 text-primary", isActive ? "opacity-100" : "opacity-0")} />
+                              <div className="flex flex-1 flex-col">
+                                <span className="line-clamp-2 text-sm font-semibold text-foreground">{question.title}</span>
+                                <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                  <Badge
+                                    variant="secondary"
+                                    className={cn("rounded-full px-2 py-0.5 font-semibold", difficultyStyles[difficulty])}
+                                  >
+                                    {difficulty}
+                                  </Badge>
+                                  <span className="rounded-full border border-border/40 bg-background/70 px-2 py-0.5 font-medium">
+                                    {question.topic}
+                                  </span>
+                                </div>
+                              </div>
+                            </DropdownMenuItem>
+                          );
+                        })}
+
+                        {!questionOptions.length && (
+                          <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                            We are curating a fresh SQL set for this company.
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                    <Badge
+                      variant="secondary"
+                      className={cn("rounded-full px-2.5 py-1 font-semibold", difficultyStyles[currentProblem.difficulty])}
+                    >
+                      {currentProblem.difficulty}
+                    </Badge>
+                    <Badge variant="outline" className="rounded-full border-border/50 bg-background/80 px-2.5 py-1 font-medium text-muted-foreground">
+                      {companyName}
+                    </Badge>
+                    <Badge variant="outline" className="rounded-full border-border/50 bg-background/80 px-2.5 py-1 font-medium text-muted-foreground">
+                      {currentTopic}
+                    </Badge>
+                    <span>{questionOptions.length} scenarios</span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    {(["Easy", "Medium", "Hard"] as const).map((tier) => (
+                      <div key={tier} className="rounded-2xl border border-border/40 bg-background/85 px-3 py-2 text-center">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{tier}</p>
+                        <p className="mt-1 text-sm font-semibold text-foreground">{difficultySummary[tier]}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              
-              {/* Discussion Forum */}
-              <DiscussionForum 
-                questionId={selectedQuestion.id}
-                questionTitle={selectedQuestion.title}
-                company={displayCompanyName}
-              />
+            </aside>
+
+            <div className="flex-1">
+              <div className="min-h-[520px]">
+                <ProblemPanel problem={currentProblem} />
+              </div>
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

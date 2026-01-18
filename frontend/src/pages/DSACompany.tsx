@@ -1,24 +1,47 @@
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { Play, ChevronDown, Building2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Building2, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Editor from "@monaco-editor/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Navbar from "@/components/landing/Navbar";
-import ComingSoonModal from "@/components/landing/ComingSoonModal";
-import DiscussionForum from "@/components/DiscussionForum";
+import { Badge } from "@/components/ui/badge";
+import { BackgroundShapes } from "@/components/codepad/BackgroundShapes";
+import { Header } from "@/components/codepad/Header";
+import { ProblemPanel } from "@/components/codepad/ProblemPanel";
+import { Problem } from "@/data/mockProblems";
+import { cn } from "@/lib/utils";
 
-const companies = [
-  "Google", "Amazon", "Microsoft", "Meta", "Apple", 
-  "Netflix", "Adobe", "Uber", "Flipkart", "Infosys"
+const companyList = [
+  "Google",
+  "Amazon",
+  "Microsoft",
+  "Meta",
+  "Apple",
+  "Netflix",
+  "Adobe",
+  "Uber",
+  "Flipkart",
+  "Infosys",
 ];
 
-const questionsByCompany: Record<string, { id: number; title: string; difficulty: string }[]> = {
+const companyIcons: Record<string, string> = {
+  google: "🔍",
+  amazon: "📦",
+  microsoft: "🪟",
+  meta: "👥",
+  apple: "🍎",
+  netflix: "🎬",
+  adobe: "🖌️",
+  uber: "🚗",
+  flipkart: "🛒",
+  infosys: "💼",
+};
+
+const questionsByCompany: Record<string, { id: number; title: string; difficulty: "Easy" | "Medium" | "Hard" }[]> = {
   google: [
     { id: 1, title: "Two Sum", difficulty: "Easy" },
     { id: 2, title: "Longest Substring Without Repeating Characters", difficulty: "Medium" },
@@ -141,146 +164,387 @@ const questionsByCompany: Record<string, { id: number; title: string; difficulty
   ],
 };
 
-const getDifficultyColor = (difficulty: string) => {
-  switch (difficulty) {
-    case "Easy": return "text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400";
-    case "Medium": return "text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400";
-    case "Hard": return "text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400";
-    default: return "text-muted-foreground bg-muted";
-  }
+const difficultyStyles: Record<Problem["difficulty"], string> = {
+  Easy: "bg-emerald-100 text-emerald-600",
+  Medium: "bg-amber-100 text-amber-700",
+  Hard: "bg-red-100 text-red-600",
+};
+
+const difficultyPriority: Record<Problem["difficulty"], number> = {
+  Easy: 0,
+  Medium: 1,
+  Hard: 2,
+};
+
+const dsaLanguages = [
+  { id: "python", name: "Python" },
+  { id: "java", name: "Java" },
+  { id: "c", name: "C" },
+  { id: "cpp", name: "C++" },
+  { id: "javascript", name: "JavaScript" },
+];
+
+const toTitleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
+const buildStarterCode = (title: string): Record<string, string> => ({
+  python: `# ${title}
+# Outline your solution in Python
+def solve():
+    """Implement your algorithm here."""
+    return None
+
+if __name__ == "__main__":
+    print(solve())
+`,
+  javascript: `// ${title}
+// Outline your solution in JavaScript
+function solve() {
+  // TODO: implement
+  return null;
+}
+
+console.log(solve());
+`,
+  java: `// ${title}
+// Outline your solution in Java
+public class Solution {
+    public static Object solve() {
+        // TODO: implement
+        return null;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(solve());
+    }
+}
+`,
+  cpp: `// ${title}
+// Outline your solution in C++
+#include <bits/stdc++.h>
+using namespace std;
+
+int solve() {
+    // TODO: implement
+    return 0;
+}
+
+int main() {
+    cout << solve() << "\n";
+    return 0;
+}
+`,
+});
+
+const fallbackProblem: Problem = {
+  id: 0,
+  title: "Warm-up Array Exploration",
+  difficulty: "Easy",
+  company: "generic",
+  companyIcon: "🚀",
+  description: "Start with a quick warm-up to get into problem-solving mode before tackling company questions.",
+  examples: [
+    { input: "nums = [1,2,3,4]", output: "10" },
+    { input: "nums = [5,5,5]", output: "15" },
+  ],
+  constraints: ["Keep your first attempt simple.", "Focus on readability over micro-optimizations."],
+  starterCode: buildStarterCode("Warm-up Array Exploration"),
+  testCases: [
+    { input: "[1,2,3,4]", expectedOutput: "10" },
+    { input: "[5,5,5]", expectedOutput: "15" },
+  ],
+};
+
+const buildProblemsForCompany = (companyKey: string): Problem[] => {
+  const questions = questionsByCompany[companyKey] ?? questionsByCompany.google;
+  const icon = companyIcons[companyKey] ?? "🏢";
+  const companyName = toTitleCase(companyKey);
+
+  return questions.map((question) => ({
+    id: question.id,
+    title: question.title,
+    difficulty: question.difficulty,
+    company: companyKey,
+    companyIcon: icon,
+    description: `Practice ${question.title} from ${companyName} interview loops. Emphasize clarity, optimal complexity, and trade-offs while you code.`,
+    examples: [
+      { input: `Sample input for ${question.title}`, output: "Review the prompt to determine the output." },
+      { input: "Edge case scenario", output: "Handle boundary conditions carefully." },
+    ],
+    constraints: [
+      `${companyName} expects a ${question.difficulty.toLowerCase()}-level solution with strong communication.`,
+      "Consider time, space, and potential follow-up questions.",
+    ],
+    starterCode: buildStarterCode(question.title),
+    testCases: [
+      { input: "Sample input", expectedOutput: "Expected output" },
+      { input: "Edge case input", expectedOutput: "Edge case output" },
+    ],
+  }));
 };
 
 const DSACompany = () => {
   const { company } = useParams();
-  const companyName = company || "google";
-  const questions = questionsByCompany[companyName] || questionsByCompany.google;
-  const [selectedQuestion, setSelectedQuestion] = useState(questions[0]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [code, setCode] = useState(`// ${selectedQuestion.title}
-// Write your solution here
+  const navigate = useNavigate();
+  const location = useLocation();
 
-function solution() {
-  // Your code here
-  
-}
+  const companyKey = (company ?? "google").toLowerCase();
+  const problems = useMemo(() => buildProblemsForCompany(companyKey), [companyKey]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-// Test your solution
-console.log(solution());
-`);
+  const problemOptions = useMemo(
+    () =>
+      problems
+        .map((item, index) => ({ problem: item, index }))
+        .sort((a, b) => {
+          const diff = difficultyPriority[a.problem.difficulty] - difficultyPriority[b.problem.difficulty];
+          if (diff !== 0) {
+            return diff;
+          }
+          return a.problem.title.localeCompare(b.problem.title);
+        }),
+    [problems],
+  );
 
-  const displayCompanyName = companyName.charAt(0).toUpperCase() + companyName.slice(1);
+  const selectedOption = useMemo(
+    () => problemOptions.find((option) => option.index === currentIndex),
+    [problemOptions, currentIndex],
+  );
+
+  const difficultySummary = useMemo(
+    () =>
+      problemOptions.reduce(
+        (acc, { problem }) => {
+          acc[problem.difficulty] += 1;
+          return acc;
+        },
+        { Easy: 0, Medium: 0, Hard: 0 },
+      ),
+    [problemOptions],
+  );
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [companyKey]);
+
+  const currentProblem = problems[currentIndex] ?? fallbackProblem;
+  const companyName = toTitleCase(companyKey);
+  const companyIcon = companyIcons[companyKey] ?? "🏢";
+
+  const cycleProblem = () => {
+    if (!problems.length) {
+      return;
+    }
+    setCurrentIndex((index) => (index + 1) % problems.length);
+  };
+
+  const handleSelectProblem = (index: number) => {
+    setCurrentIndex(index);
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar onCtaClick={() => setIsModalOpen(true)} />
-      <ComingSoonModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
+      <BackgroundShapes />
 
-      <main className="pt-24 pb-8">
-        <div className="container mx-auto px-4">
-          {/* Page Title with Company Dropdown */}
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold mb-1">
-                <span className="text-primary">{displayCompanyName}</span> DSA Questions
-              </h1>
-              <p className="text-muted-foreground">Practice the most asked questions at {displayCompanyName}</p>
-            </div>
-            
-            {/* Company Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <Building2 className="h-4 w-4" />
-                  {displayCompanyName}
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-card border border-border">
-                {companies.map((comp) => (
-                  <DropdownMenuItem key={comp} asChild>
-                    <Link 
-                      to={`/dsa/${comp.toLowerCase()}`}
-                      className={comp.toLowerCase() === companyName ? "bg-primary/10 text-primary" : ""}
+      <Header onLeaveWorkspace={() => navigate("/dsa")} />
+
+      <div className="px-4 pb-12 md:px-6">
+        <div className="mx-auto w-full max-w-[1600px] space-y-8">
+          <div className="glass-card flex flex-col gap-5 rounded-3xl border border-border/40 bg-background/80 p-6 shadow-xl backdrop-blur-xl">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-start gap-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-3xl">
+                  {companyIcon}
+                </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Currently solving</p>
+                  <h1 className="text-2xl font-semibold text-foreground md:text-3xl">{currentProblem.title}</h1>
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        "rounded-full px-3 py-1 font-semibold",
+                        difficultyStyles[currentProblem.difficulty],
+                      )}
                     >
-                      {comp}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                      {currentProblem.difficulty}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-2 rounded-full border-primary/40 bg-primary/5 text-primary"
+                    >
+                      <span>{companyIcon}</span>
+                      {companyName}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  variant="outline"
+                  className="rounded-full border-border/50 bg-background/80 px-5 py-2 text-sm font-medium shadow-sm backdrop-blur"
+                  onClick={cycleProblem}
+                >
+                  Next challenge
+                </Button>
+                <Button
+                  className="rounded-full bg-gradient-to-r from-primary/90 to-primary px-5 py-2 text-sm font-semibold shadow-lg shadow-primary/40"
+                  onClick={() =>
+                    navigate("/codepad", {
+                      state: {
+                        origin: "dsa",
+                        problem: currentProblem,
+                        languages: dsaLanguages,
+                        defaultLanguage: "python",
+                        returnTo: location.pathname,
+                      },
+                    })
+                  }
+                >
+                  Open sandbox
+                </Button>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground md:max-w-3xl">
+              Rotate through vetted {companyName} interview prompts. Focus on walking through your thought process out
+              loud while you codify your approach and document trade-offs.
+            </p>
           </div>
 
-          {/* Main Layout - Questions and Editor */}
-          <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] gap-6">
-            {/* Questions List */}
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-              <div className="p-4 border-b border-border bg-muted/30">
-                <h2 className="font-semibold">Questions ({questions.length})</h2>
-              </div>
-              <div className="divide-y divide-border max-h-[300px] md:max-h-[calc(100vh-220px)] overflow-y-auto">
-                {questions.map((q) => (
-                  <button
-                    key={q.id}
-                    onClick={() => {
-                      setSelectedQuestion(q);
-                      setCode(`// ${q.title}\n// Write your solution here\n\nfunction solution() {\n  // Your code here\n  \n}\n\nconsole.log(solution());`);
-                    }}
-                    className={`w-full text-left p-4 hover:bg-muted/50 transition-colors ${
-                      selectedQuestion.id === q.id ? "bg-primary/5 border-l-2 border-primary" : ""
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <span className="text-xs text-muted-foreground">#{q.id}</span>
-                        <h3 className="font-medium text-sm truncate">{q.title}</h3>
-                      </div>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getDifficultyColor(q.difficulty)}`}>
-                        {q.difficulty}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Code Editor */}
-            <div className="bg-card rounded-xl border border-border overflow-hidden flex flex-col">
-              <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
-                <div>
-                  <h2 className="font-semibold">{selectedQuestion.title}</h2>
-                  <p className="text-sm text-muted-foreground">{selectedQuestion.difficulty}</p>
+          <div className="flex flex-col gap-8 xl:flex-row">
+            <aside className="flex w-full flex-shrink-0 flex-col gap-6 xl:w-96 2xl:w-[420px]">
+              <div className="glass-card rounded-3xl border border-border/40 p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Company</p>
+                    <h2 className="text-2xl font-semibold text-foreground">{companyName}</h2>
+                    <p className="text-sm text-muted-foreground">{problems.length} curated challenges</p>
+                  </div>
+                  <span className="text-3xl" aria-hidden="true">
+                    {companyIcon}
+                  </span>
                 </div>
-                <Button className="gap-2">
-                  <Play className="h-4 w-4" />
-                  Run Code
-                </Button>
+
+                <div className="mt-5">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex w-full items-center justify-between rounded-xl border border-border/40 bg-background/70 px-3 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:border-border">
+                      <span className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4" />
+                        {companyName}
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      {companyList.map((label) => (
+                        <DropdownMenuItem key={label} asChild>
+                          <Link to={`/dsa/${label.toLowerCase()}`} className="flex items-center gap-2">
+                            <span>{companyIcons[label.toLowerCase()] ?? "🏢"}</span>
+                            <span>{label}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
-              <div className="flex-1 min-h-[400px] md:min-h-[500px]">
-                <Editor
-                  height="100%"
-                  defaultLanguage="javascript"
-                  value={code}
-                  onChange={(value) => setCode(value || "")}
-                  theme="vs-dark"
-                  options={{
-                    minimap: { enabled: false },
-                    fontSize: 14,
-                    padding: { top: 16 },
-                    scrollBeyondLastLine: false,
-                  }}
-                />
+
+              <div className="glass-card w-full max-w-[420px] rounded-3xl border border-border/40">
+                <div className="border-b border-border/40 px-6 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Question Bank</p>
+                </div>
+
+                <div className="space-y-5 px-6 py-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Selected challenge</p>
+                      <p className="mt-1 line-clamp-2 text-sm font-semibold text-foreground">
+                        {currentProblem.title}
+                      </p>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="flex items-center gap-2 rounded-full border border-border/40 bg-background/80 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-foreground transition hover:border-primary/40 hover:text-primary"
+                          disabled={!problemOptions.length}
+                        >
+                          <span className="line-clamp-1 max-w-[160px] text-left">
+                            {selectedOption ? `#${selectedOption.problem.id} · ${selectedOption.problem.title}` : "No problems"}
+                          </span>
+                          <ChevronDown className="h-3.5 w-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-72 max-h-72 overflow-auto">
+                        {problemOptions.map(({ problem, index: originalIndex }) => {
+                          const isActive = originalIndex === currentIndex;
+                          return (
+                            <DropdownMenuItem
+                              key={problem.id}
+                              onSelect={(event) => {
+                                event.preventDefault();
+                                handleSelectProblem(originalIndex);
+                              }}
+                              className="flex items-start gap-3 px-3 py-2"
+                            >
+                              <Check className={cn("mt-0.5 h-4 w-4 text-primary", isActive ? "opacity-100" : "opacity-0")} />
+                              <div className="flex flex-1 flex-col">
+                                <span className="line-clamp-2 text-sm font-semibold text-foreground">{problem.title}</span>
+                                <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                  <Badge
+                                    variant="secondary"
+                                    className={cn("rounded-full px-2 py-0.5 font-semibold", difficultyStyles[problem.difficulty])}
+                                  >
+                                    {problem.difficulty}
+                                  </Badge>
+                                  <span className="font-mono text-[10px] text-muted-foreground/80">#{problem.id}</span>
+                                </div>
+                              </div>
+                            </DropdownMenuItem>
+                          );
+                        })}
+
+                        {!problemOptions.length && (
+                          <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                            We are curating a new interview set for this company.
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                    <Badge
+                      variant="secondary"
+                      className={cn("rounded-full px-2.5 py-1 font-semibold", difficultyStyles[currentProblem.difficulty])}
+                    >
+                      {currentProblem.difficulty}
+                    </Badge>
+                    <Badge variant="outline" className="rounded-full border-border/50 bg-background/80 px-2.5 py-1 font-medium text-muted-foreground">
+                      {companyName}
+                    </Badge>
+                    <span>{problemOptions.length} problems</span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    {(["Easy", "Medium", "Hard"] as const).map((tier) => (
+                      <div key={tier} className="rounded-2xl border border-border/40 bg-background/85 px-3 py-2 text-center">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{tier}</p>
+                        <p className="mt-1 text-sm font-semibold text-foreground">{difficultySummary[tier]}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              
-              {/* Discussion Forum */}
-              <DiscussionForum 
-                questionId={selectedQuestion.id}
-                questionTitle={selectedQuestion.title}
-                company={displayCompanyName}
-              />
+            </aside>
+
+            <div className="flex-1">
+              <div className="min-h-[520px]">
+                <ProblemPanel problem={currentProblem} />
+              </div>
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

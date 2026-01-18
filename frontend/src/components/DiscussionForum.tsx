@@ -16,6 +16,7 @@ interface DiscussionForumProps {
   questionId: number;
   questionTitle: string;
   company: string;
+  className?: string;
 }
 
 const dummyComments: Comment[] = [
@@ -45,7 +46,7 @@ const dummyComments: Comment[] = [
   },
 ];
 
-const DiscussionForum = ({ questionId, questionTitle, company }: DiscussionForumProps) => {
+const DiscussionForum = ({ questionId, questionTitle, company, className = "" }: DiscussionForumProps) => {
   const [comments, setComments] = useState<Comment[]>(dummyComments);
   const [newComment, setNewComment] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -72,8 +73,10 @@ const DiscussionForum = ({ questionId, questionTitle, company }: DiscussionForum
     ));
   };
 
+  const containerClasses = `bg-card border border-border rounded-xl overflow-hidden ${className}`.trim();
+
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden mt-6">
+    <div className={containerClasses}>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full p-4 flex items-center justify-between bg-muted/30 hover:bg-muted/50 transition-colors"
